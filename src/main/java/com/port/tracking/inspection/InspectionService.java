@@ -40,6 +40,13 @@ public class InspectionService {
         return toDTO(inspectionRepository.save(inspection));
     }
 
+    public List<InspectionDTO> getAllInspections() {
+        return inspectionRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public List<InspectionDTO> getMesTaches(Long inspecteurId) {
         User inspecteur = userRepository.findById(inspecteurId)
                 .orElseThrow(() -> new RuntimeException("Inspecteur not found"));

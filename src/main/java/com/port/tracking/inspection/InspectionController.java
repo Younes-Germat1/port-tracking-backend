@@ -25,14 +25,20 @@ public class InspectionController {
                 inspectionService.createInspection(conteneurId, inspecteurId, organisme));
     }
 
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ADII') or hasRole('INSPECTEUR')")
+    public ResponseEntity<List<InspectionDTO>> getAllInspections() {
+        return ResponseEntity.ok(inspectionService.getAllInspections());
+    }
+
     @GetMapping("/mes-taches")
-    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN') or hasRole('ADII')")
     public ResponseEntity<List<InspectionDTO>> getMesTaches(@RequestParam Long inspecteurId) {
         return ResponseEntity.ok(inspectionService.getMesTaches(inspecteurId));
     }
 
     @PutMapping("/{id}/resultat")
-    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN') or hasRole('ADII')")
     public ResponseEntity<InspectionDTO> enregistrerResultat(
             @PathVariable Long id,
             @Valid @RequestBody EnregistrerResultatRequest request) {

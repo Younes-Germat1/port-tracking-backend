@@ -33,7 +33,7 @@ public class FicheController {
     }
 
     @PutMapping("/{id}/statut")
-    @PreAuthorize("hasRole('ADII') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADII') or hasRole('ADMIN') or hasRole('OPERATEUR') or hasRole('INSPECTEUR')")
     public ResponseEntity<FicheDTO> updateStatut(
             @PathVariable Long id,
             @Valid @RequestBody UpdateFicheStatutRequest request,
