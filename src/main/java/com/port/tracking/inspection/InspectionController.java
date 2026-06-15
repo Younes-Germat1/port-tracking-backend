@@ -37,6 +37,12 @@ public class InspectionController {
         return ResponseEntity.ok(inspectionService.getMesTaches(inspecteurId));
     }
 
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN') or hasRole('ADII')")
+    public ResponseEntity<InspectionDTO> getInspectionById(@PathVariable Long id) {
+        return ResponseEntity.ok(inspectionService.getInspectionById(id));
+    }
+
     @PutMapping("/{id}/resultat")
     @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN') or hasRole('ADII')")
     public ResponseEntity<InspectionDTO> enregistrerResultat(

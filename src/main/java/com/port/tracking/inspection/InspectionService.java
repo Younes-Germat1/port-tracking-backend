@@ -56,6 +56,12 @@ public class InspectionService {
                 .collect(Collectors.toList());
     }
 
+    public InspectionDTO getInspectionById(Long id) {
+        Inspection inspection = inspectionRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Inspection not found"));
+        return toDTO(inspection);
+    }
+
     public InspectionDTO enregistrerResultat(Long id, EnregistrerResultatRequest request) {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
