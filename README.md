@@ -21,90 +21,161 @@ A Spring Boot REST API for managing port operations including container tracking
 ---
 
 ## Project Structure
-
-```
 src/main/java/com/port/tracking/
+
 ├── config/
-│   └── SecurityConfig.java          # JWT + Spring Security config
+
+│   └── SecurityConfig.java          # JWT + Spring Security + DaoAuthenticationProvider
+
 ├── auth/
+
 │   ├── AuthController.java          # POST /api/auth/login, /register
+
 │   ├── AuthService.java
+
 │   ├── JwtTokenProvider.java        # Generate & validate JWT tokens
+
 │   ├── JwtAuthFilter.java           # Filter every request
+
 │   └── dto/
+
 │       ├── LoginRequest.java
+
 │       └── AuthResponse.java
+
 ├── user/
+
 │   ├── User.java                    # Entity
+
 │   ├── UserRole.java                # Enum: IMPORTATEUR, ADII, OPERATEUR, INSPECTEUR, ADMIN
+
 │   ├── UserRepository.java
+
 │   ├── UserService.java
+
 │   ├── UserController.java
+
 │   ├── UserDetailsServiceImpl.java
+
 │   └── dto/
+
 │       ├── UserDTO.java
+
 │       └── CreateUserRequest.java
+
 ├── fiche/                           # "Fiche Suiveuse" — core module
+
 │   ├── FicheSuiveuse.java           # Entity
+
 │   ├── FicheStatut.java             # Enum: EN_ATTENTE, APPROUVEE, REJETEE, PLACEE, DEDOUANEE, LIBEREE
+
 │   ├── FicheRepository.java
+
 │   ├── FicheService.java
+
 │   ├── FicheController.java
+
 │   └── dto/
+
 │       ├── FicheDTO.java
+
 │       ├── CreateFicheRequest.java
+
 │       └── UpdateFicheStatutRequest.java
+
 ├── conteneur/
+
 │   ├── Conteneur.java               # Entity
+
 │   ├── ConteneurStatut.java         # Enum: ARRIVE, STOCKE, EN_INSPECTION, CHARGEMENT, PARTI
+
 │   ├── ConteneurRepository.java
+
 │   ├── ConteneurService.java
+
 │   ├── ConteneurController.java
+
 │   └── dto/
+
 │       ├── ConteneurDTO.java
+
 │       └── AssignEmplacementRequest.java
+
 ├── marchandise/
+
 │   ├── Marchandise.java
+
 │   ├── ClassificationMarchandise.java  # Enum: DANGEREUSE, PERISSABLE, STANDARD, FRAGILE
+
 │   ├── MarchandiseRepository.java
+
 │   ├── MarchandiseService.java
+
 │   ├── MarchandiseController.java
+
 │   └── dto/
+
 │       ├── MarchandiseDTO.java
+
 │       └── CreateMarchandiseRequest.java
+
 ├── inspection/
+
 │   ├── Inspection.java
+
 │   ├── InspectionResultat.java      # Enum: CONFORME, NON_CONFORME
+
 │   ├── InspectionRepository.java
+
 │   ├── InspectionService.java
+
 │   ├── InspectionController.java
+
 │   └── dto/
+
 │       ├── InspectionDTO.java
+
 │       └── EnregistrerResultatRequest.java
+
 ├── document/
+
 │   ├── Document.java
+
 │   ├── DocumentRepository.java
+
 │   ├── DocumentService.java
+
 │   └── DocumentController.java
+
 ├── historique/
+
 │   ├── Historique.java
+
 │   ├── HistoriqueRepository.java
+
 │   └── HistoriqueService.java
+
 ├── notification/
+
 │   ├── Notification.java
+
 │   ├── NotificationRepository.java
+
 │   ├── NotificationService.java
+
 │   └── NotificationController.java
+
 └── qrcode/
-    ├── QrCodeService.java
-    └── QrCodeController.java
-```
+
+├── QrCodeService.java
+
+└── QrCodeController.java
 
 ---
 
 ## Database Schema
 
-```
+```sql
 users               → id, nom, email, password, role, created_at
 fiches_suiveuses    → id, importateur_id, statut, created_at, updated_at
 marchandises        → id, fiche_id, classification, poids, volume, code_sh
@@ -128,7 +199,7 @@ notifications       → id, user_id, message, lu, created_at
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/port-tracking-backend.git
+git clone https://github.com/Younes-Germat1/port-tracking-backend.git
 cd port-tracking-backend
 ```
 
@@ -150,7 +221,20 @@ file.upload-dir=./uploads
 server.port=8080
 ```
 
-### 4. Run the application
+### 4. Insert test users (BCrypt password = 123456)
+
+```sql
+USE port_tracking;
+
+INSERT INTO users (nom, email, password, role, created_at) VALUES
+('Admin Port', 'admin@port.ma', '$2a$10$slYQmyNdgTY18LlZkbC7SOyfEjFnEAUdGlFVRFMl5wBrTRO6FQCK6', 'ADMIN', NOW()),
+('Importateur Test', 'importateur@port.ma', '$2a$10$slYQmyNdgTY18LlZkbC7SOyfEjFnEAUdGlFVRFMl5wBrTRO6FQCK6', 'IMPORTATEUR', NOW()),
+('Agent ADII', 'adii@port.ma', '$2a$10$slYQmyNdgTY18LlZkbC7SOyfEjFnEAUdGlFVRFMl5wBrTRO6FQCK6', 'ADII', NOW()),
+('Operateur Port', 'operateur@port.ma', '$2a$10$slYQmyNdgTY18LlZkbC7SOyfEjFnEAUdGlFVRFMl5wBrTRO6FQCK6', 'OPERATEUR', NOW()),
+('Inspecteur Test', 'inspecteur@port.ma', '$2a$10$slYQmyNdgTY18LlZkbC7SOyfEjFnEAUdGlFVRFMl5wBrTRO6FQCK6', 'INSPECTEUR', NOW());
+```
+
+### 5. Run the application
 
 ```bash
 ./mvnw spring-boot:run
@@ -163,10 +247,7 @@ The server starts at `http://localhost:8080`
 ## API Documentation
 
 Swagger UI is available at:
-
-```
 http://localhost:8080/swagger-ui/index.html
-```
 
 ---
 
@@ -215,7 +296,8 @@ http://localhost:8080/swagger-ui/index.html
 | Method | Endpoint | Description | Access |
 |---|---|---|---|
 | POST | `/api/inspections` | Create inspection | ADII, ADMIN |
-| GET | `/api/inspections/mes-taches` | Get my tasks | INSPECTEUR |
+| GET | `/api/inspections` | Get all inspections | ADII, ADMIN |
+| GET | `/api/inspections/mes-taches?inspecteurId={id}` | Get my tasks | INSPECTEUR |
 | PUT | `/api/inspections/{id}/resultat` | Submit result | INSPECTEUR |
 
 ### Documents
@@ -242,10 +324,7 @@ http://localhost:8080/swagger-ui/index.html
 ## Authentication
 
 All protected endpoints require a Bearer token in the Authorization header:
-
-```
 Authorization: Bearer eyJhbGciOiJIUzI1NiJ9...
-```
 
 To get a token, call `POST /api/auth/login` with your credentials.
 
@@ -263,7 +342,43 @@ To get a token, call `POST /api/auth/login` with your credentials.
 
 ---
 
+## Default Test Accounts
+
+| Role | Email | Password |
+|---|---|---|
+| ADMIN | admin@port.ma | 123456 |
+| IMPORTATEUR | importateur@port.ma | 123456 |
+| ADII | adii@port.ma | 123456 |
+| OPERATEUR | operateur@port.ma | 123456 |
+| INSPECTEUR | inspecteur@port.ma | 123456 |
+
+---
+
+## Connection with Flutter Mobile App
+
+This backend is shared with the Flutter mobile app.  
+Configure the IP in `lib/core/constants.dart` of the Flutter project:
+
+```dart
+static const String baseUrl = 'http://YOUR_PC_IP:8080';
+```
+
+> Make sure your phone and PC are on the same WiFi network!
+
+---
+
+## Known Issues & Solutions
+
+| Problem | Solution |
+|---|---|
+| 403 on login | Check BCrypt password hash in DB |
+| Connection refused | Verify Spring Boot is running on port 8080 |
+| Firewall blocking | Run: `netsh advfirewall firewall add rule name="Spring Boot 8080" dir=in action=allow protocol=TCP localport=8080 profile=any` |
+
+---
+
 ## Built With ❤️ for PFE
 
 > Port Container Tracking System — Backend API  
-> Built with Spring Boot 3.5 + MySQL + JWT Authentication
+> Built with Spring Boot 3.5 + MySQL + JWT Authentication  
+> Tested with Flutter Mobile App on Android 8.1 (OPPO CPH1803)
