@@ -1,5 +1,6 @@
 package com.port.tracking.notification;
 
+import com.port.tracking.fiche.FicheSuiveuse;
 import com.port.tracking.user.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -20,6 +21,10 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "fiche_id")
+    private FicheSuiveuse fiche;
 
     private String message;
 

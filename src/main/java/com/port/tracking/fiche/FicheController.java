@@ -1,7 +1,7 @@
 package com.port.tracking.fiche;
 
 import com.port.tracking.fiche.dto.*;
-import com.port.tracking.historique.Historique;
+import com.port.tracking.historique.HistoriqueDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -41,8 +41,16 @@ public class FicheController {
         return ResponseEntity.ok(ficheService.updateStatut(id, request, acteurId));
     }
 
+    @PutMapping("/{id}/resoumission")
+    @PreAuthorize("hasRole('IMPORTATEUR') or hasRole('ADMIN')")
+    public ResponseEntity<FicheDTO> resoumission(
+            @PathVariable Long id,
+            @Valid @RequestBody ResoumissionRequest request) {
+        return ResponseEntity.ok(ficheService.resoumission(id, request));
+    }
+
     @GetMapping("/{id}/historique")
-    public ResponseEntity<List<Historique>> getHistorique(@PathVariable Long id) {
+    public ResponseEntity<List<HistoriqueDTO>> getHistorique(@PathVariable Long id) {
         return ResponseEntity.ok(ficheService.getHistorique(id));
     }
 }

@@ -21,10 +21,13 @@ public class MarchandiseService {
 
         Marchandise marchandise = Marchandise.builder()
                 .fiche(fiche)
-                .classification(request.getClassification())
+                .description(request.getDescription())
+                .classification(request.getClassification() != null
+                        ? request.getClassification().toString()
+                        : null)
                 .poids(request.getPoids())
                 .volume(request.getVolume())
-                .codeSh(request.getCodeSh())
+                .codeSH(request.getCodeSh())
                 .build();
 
         return toDTO(marchandiseRepository.save(marchandise));
@@ -46,10 +49,11 @@ public class MarchandiseService {
         return MarchandiseDTO.builder()
                 .id(m.getId())
                 .ficheId(m.getFiche().getId())
+                .description(m.getDescription())
                 .classification(m.getClassification())
                 .poids(m.getPoids())
                 .volume(m.getVolume())
-                .codeSh(m.getCodeSh())
+                .codeSh(m.getCodeSH())
                 .build();
     }
 }

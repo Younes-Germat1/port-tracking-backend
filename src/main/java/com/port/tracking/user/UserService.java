@@ -33,6 +33,7 @@ public class UserService {
                 .nom(request.getNom())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
+                .telephone(request.getTelephone())
                 .role(request.getRole())
                 .build();
         return toDTO(userRepository.save(user));
@@ -47,6 +48,7 @@ public class UserService {
                 .id(user.getId())
                 .nom(user.getNom())
                 .email(user.getEmail())
+                .telephone(user.getTelephone())
                 .role(user.getRole())
                 .build();
     }

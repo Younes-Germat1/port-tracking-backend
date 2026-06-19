@@ -29,6 +29,13 @@ public class ConteneurService {
         return toDTO(conteneurRepository.save(conteneur));
     }
 
+    public List<ConteneurDTO> getAllConteneurs() {
+        return conteneurRepository.findAll()
+                .stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public ConteneurDTO getConteneurById(Long id) {
         return toDTO(conteneurRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Conteneur not found")));
@@ -62,6 +69,42 @@ public class ConteneurService {
         return Duration.between(conteneur.getArrivedAt(), LocalDateTime.now()).toHours();
     }
 
+    private String getPriority(Conteneur conteneur) {
+        List<String> classifications = getClassifications(conteneur);
+        if (classifications.contains("DANGEREUSE")) return "CRITIQUE";
+        if (classifications.contains("PERISSABLE"))  return "HAUTE";
+        if (classifications.contains("FRAGILE"))     return "MOYENNE";
+        return "NORMALE";
+    }
+
+    private Long getWarningThreshold(Conteneur conteneur) {
+        List<String> classifications = getClassifications(conteneur);
+        if (classifications.contains("DANGEREUSE")) return 24L;
+        if (classifications.contains("PERISSABLE"))  return 24L;
+        return 72L;
+    }
+
+    private Long getCritiqueThreshold(Conteneur conteneur) {
+        List<String> classifications = getClassifications(conteneur);
+        if (classifications.contains("DANGEREUSE")) return 48L;
+        if (classifications.contains("PERISSABLE"))  return 48L;
+        return 120L;
+    }
+
+    private List<String> getClassifications(Conteneur conteneur) {
+        if (conteneur.getFiche() == null ||
+                conteneur.getFiche().getMarchandises() == null) {
+            return List.of();
+        }
+        return conteneur.getFiche().getMarchandises()
+                .stream()
+                .map(m -> m.getClassification() != null
+                        ? m.getClassification().toString()
+                        : "STANDARD")
+                .distinct()
+                .collect(Collectors.toList());
+    }
+
     private ConteneurDTO toDTO(Conteneur conteneur) {
         Long dwellTime = conteneur.getArrivedAt() != null
                 ? Duration.between(conteneur.getArrivedAt(), LocalDateTime.now()).toHours()
@@ -77,6 +120,10 @@ public class ConteneurService {
                 .quai(conteneur.getQuai())
                 .arrivedAt(conteneur.getArrivedAt())
                 .dwellTimeHours(dwellTime)
+                .priority(getPriority(conteneur))
+                .classifications(getClassifications(conteneur))
+                .warningThreshold(getWarningThreshold(conteneur))
+                .critiqueThreshold(getCritiqueThreshold(conteneur))
                 .build();
     }
 }

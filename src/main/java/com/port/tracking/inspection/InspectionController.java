@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
@@ -49,5 +50,17 @@ public class InspectionController {
             @PathVariable Long id,
             @Valid @RequestBody EnregistrerResultatRequest request) {
         return ResponseEntity.ok(inspectionService.enregistrerResultat(id, request));
+    }
+
+    @PostMapping("/{id}/photo")
+    @PreAuthorize("hasRole('INSPECTEUR') or hasRole('ADMIN')")
+    public ResponseEntity<InspectionDTO> uploadPhoto(
+            @PathVariable Long id,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            return ResponseEntity.ok(inspectionService.uploadPhoto(id, file));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 }

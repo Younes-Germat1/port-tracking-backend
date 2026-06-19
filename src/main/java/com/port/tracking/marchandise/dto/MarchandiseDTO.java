@@ -1,6 +1,5 @@
 package com.port.tracking.marchandise.dto;
 
-import com.port.tracking.marchandise.ClassificationMarchandise;
 import lombok.*;
 
 @Data
@@ -10,7 +9,8 @@ import lombok.*;
 public class MarchandiseDTO {
     private Long id;
     private Long ficheId;
-    private ClassificationMarchandise classification;
+    private String description;
+    private String classification;
     private Double poids;
     private Double volume;
     private String codeSh;

@@ -20,6 +20,11 @@ public class ConteneurController {
         return ResponseEntity.ok(conteneurService.createConteneur(ficheId));
     }
 
+    @GetMapping
+    public ResponseEntity<List<ConteneurDTO>> getAllConteneurs() {
+        return ResponseEntity.ok(conteneurService.getAllConteneurs());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<ConteneurDTO> getConteneurById(@PathVariable Long id) {
         return ResponseEntity.ok(conteneurService.getConteneurById(id));

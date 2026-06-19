@@ -11,4 +11,7 @@ public class UpdateFicheStatutRequest {
 
     @NotNull
     private FicheStatut statut;
+
+    // ✅ Optional motif for rejection
+    private String motif;
 }

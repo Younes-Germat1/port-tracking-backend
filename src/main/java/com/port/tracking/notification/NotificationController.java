@@ -12,20 +12,24 @@ public class NotificationController {
 
     private final NotificationService notificationService;
 
-    @GetMapping("/me")
-    public ResponseEntity<List<Notification>> getMyNotifications(
-            @RequestParam Long userId) {
+    @GetMapping
+    public ResponseEntity<List<NotificationDTO>> getMyNotifications(@RequestParam Long userId) {
         return ResponseEntity.ok(notificationService.getMyNotifications(userId));
     }
 
-    @GetMapping("/me/unread")
-    public ResponseEntity<List<Notification>> getUnreadNotifications(
-            @RequestParam Long userId) {
+    @GetMapping("/unread")
+    public ResponseEntity<List<NotificationDTO>> getUnreadNotifications(@RequestParam Long userId) {
         return ResponseEntity.ok(notificationService.getUnreadNotifications(userId));
     }
 
     @PutMapping("/{id}/lu")
-    public ResponseEntity<Notification> markAsRead(@PathVariable Long id) {
+    public ResponseEntity<NotificationDTO> markAsRead(@PathVariable Long id) {
         return ResponseEntity.ok(notificationService.markAsRead(id));
+    }
+
+    @PutMapping("/lu-tout")
+    public ResponseEntity<Void> markAllAsRead(@RequestParam Long userId) {
+        notificationService.markAllAsRead(userId);
+        return ResponseEntity.ok().build();
     }
 }

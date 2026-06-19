@@ -33,4 +33,7 @@ public class Inspection {
 
     private LocalDateTime date;
     private String commentaire;
+
+    @Column(name = "photo_path")
+    private String photoPath;
 }
