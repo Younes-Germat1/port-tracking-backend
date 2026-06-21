@@ -1,7 +1,9 @@
 package com.port.tracking.notification;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
@@ -31,5 +33,11 @@ public class NotificationController {
     public ResponseEntity<Void> markAllAsRead(@RequestParam Long userId) {
         notificationService.markAllAsRead(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/admin-alert")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<NotificationDTO>> sendAdminAlert(@Valid @RequestBody AdminAlertRequest request) {
+        return ResponseEntity.ok(notificationService.sendAdminAlert(request));
     }
 }

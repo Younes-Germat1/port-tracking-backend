@@ -3,10 +3,12 @@ package com.port.tracking.inspection;
 import com.port.tracking.conteneur.Conteneur;
 import com.port.tracking.conteneur.ConteneurRepository;
 import com.port.tracking.conteneur.ConteneurStatut;
+import com.port.tracking.fiche.FicheSuiveuse;
 import com.port.tracking.inspection.dto.*;
 import com.port.tracking.notification.NotificationService;
 import com.port.tracking.user.User;
 import com.port.tracking.user.UserRepository;
+import com.port.tracking.user.UserRole;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,7 +53,6 @@ public class InspectionService {
 
         Inspection saved = inspectionRepository.save(inspection);
 
-        // Notify inspector
         notificationService.createNotification(
                 inspecteur,
                 conteneur.getFiche(),
@@ -60,6 +61,47 @@ public class InspectionService {
         );
 
         return toDTO(saved);
+    }
+
+    /**
+     * ✅ Auto-assignment: called when a conteneur is placed (PLACEE).
+     * For each organisme required by the fiche (excluding ADII, which is a customs
+     * validation step and not a field inspection), automatically pick the least-busy
+     * inspector registered for that organisme and create an Inspection for them.
+     * If no inspector is registered for a given organisme yet, that organisme is
+     * skipped (logged via no-op) rather than failing the whole placement.
+     */
+    public void autoCreateInspectionsForConteneur(Conteneur conteneur) {
+        FicheSuiveuse fiche = conteneur.getFiche();
+        if (fiche == null || fiche.getOrganismes() == null) return;
+
+        List<String> organismesAInspecter = fiche.getOrganismes().stream()
+                .filter(o -> !"ADII".equals(o))
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<User> tousInspecteurs = userRepository.findByRole(UserRole.INSPECTEUR);
+
+        for (String organisme : organismesAInspecter) {
+            List<User> candidats = tousInspecteurs.stream()
+                    .filter(u -> organisme.equals(u.getOrganisme()))
+                    .collect(Collectors.toList());
+
+            if (candidats.isEmpty()) {
+                // No inspector registered for this organisme yet — admin needs to create one.
+                continue;
+            }
+
+            // Pick the inspector with the fewest currently-pending inspections (load balancing)
+            User chosen = candidats.stream()
+                    .min(Comparator.comparingLong(u ->
+                            inspectionRepository.findByInspecteur(u).stream()
+                                    .filter(i -> i.getResultat() == null)
+                                    .count()))
+                    .orElse(candidats.get(0));
+
+            createInspection(conteneur.getId(), chosen.getId(), organisme);
+        }
     }
 
     public List<InspectionDTO> getAllInspections() {
@@ -121,13 +163,11 @@ public class InspectionService {
         Inspection inspection = inspectionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Inspection not found"));
 
-        // Create upload directory if not exists
         Path uploadPath = Paths.get(UPLOAD_DIR);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
 
-        // Save file with unique name
         String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Path filePath = uploadPath.resolve(fileName);
         Files.copy(file.getInputStream(), filePath);

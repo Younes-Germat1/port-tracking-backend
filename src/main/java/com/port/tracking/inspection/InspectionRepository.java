@@ -7,4 +7,5 @@ import java.util.List;
 public interface InspectionRepository extends JpaRepository<Inspection, Long> {
     List<Inspection> findByInspecteur(User inspecteur);
     List<Inspection> findByConteneurId(Long conteneurId);
+    List<Inspection> findByResultatIsNull();
 }

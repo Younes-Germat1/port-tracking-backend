@@ -40,4 +40,11 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    // ✅ Get inspectors filtered by organisme — used when creating an inspection
+    @GetMapping("/inspecteurs")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('ADII')")
+    public ResponseEntity<List<UserDTO>> getInspecteurs(@RequestParam(required = false) String organisme) {
+        return ResponseEntity.ok(userService.getInspectorsByOrganisme(organisme));
+    }
 }

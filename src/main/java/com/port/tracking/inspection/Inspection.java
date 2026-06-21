@@ -36,4 +36,8 @@ public class Inspection {
 
     @Column(name = "photo_path")
     private String photoPath;
+
+    @Column(name = "delay_alert_sent")
+    @Builder.Default
+    private Boolean delayAlertSent = false;
 }

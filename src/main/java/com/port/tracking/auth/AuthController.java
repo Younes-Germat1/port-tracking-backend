@@ -28,7 +28,6 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(user, role));
     }
 
-    // ⚠️ TEMPORAIRE — à supprimer après test
     @GetMapping("/test-hash")
     public ResponseEntity<String> testHash() {
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();

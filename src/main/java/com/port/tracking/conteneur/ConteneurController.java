@@ -2,10 +2,12 @@ package com.port.tracking.conteneur;
 
 import com.port.tracking.conteneur.dto.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/conteneurs")
@@ -37,10 +39,15 @@ public class ConteneurController {
 
     @PutMapping("/{id}/emplacement")
     @PreAuthorize("hasRole('OPERATEUR') or hasRole('ADMIN')")
-    public ResponseEntity<ConteneurDTO> assignEmplacement(
+    public ResponseEntity<?> assignEmplacement(
             @PathVariable Long id,
             @RequestBody AssignEmplacementRequest request) {
-        return ResponseEntity.ok(conteneurService.assignEmplacement(id, request));
+        try {
+            return ResponseEntity.ok(conteneurService.assignEmplacement(id, request));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("message", e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}/dwell-time")

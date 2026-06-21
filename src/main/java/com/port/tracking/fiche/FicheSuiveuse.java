@@ -48,6 +48,10 @@ public class FicheSuiveuse {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "delay_alert_sent")
+    @Builder.Default
+    private Boolean delayAlertSent = false;
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

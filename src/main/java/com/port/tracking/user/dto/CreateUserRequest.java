@@ -23,6 +23,8 @@ public class CreateUserRequest {
 
     private String telephone;
 
+    private String organisme;
+
     @NotNull
     private UserRole role;
 }

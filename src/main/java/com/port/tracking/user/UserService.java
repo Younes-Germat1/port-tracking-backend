@@ -35,12 +35,21 @@ public class UserService {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .telephone(request.getTelephone())
                 .role(request.getRole())
+                .organisme(request.getRole() == UserRole.INSPECTEUR ? request.getOrganisme() : null)
                 .build();
         return toDTO(userRepository.save(user));
     }
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+
+    public List<UserDTO> getInspectorsByOrganisme(String organisme) {
+        return userRepository.findByRole(UserRole.INSPECTEUR)
+                .stream()
+                .filter(u -> organisme == null || organisme.isBlank() || organisme.equals(u.getOrganisme()))
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
     private UserDTO toDTO(User user) {
@@ -50,6 +59,7 @@ public class UserService {
                 .email(user.getEmail())
                 .telephone(user.getTelephone())
                 .role(user.getRole())
+                .organisme(user.getOrganisme())
                 .build();
     }
 }

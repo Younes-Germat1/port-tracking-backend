@@ -28,6 +28,9 @@ public class User {
     @Column
     private String telephone;
 
+    @Column
+    private String organisme;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private UserRole role;

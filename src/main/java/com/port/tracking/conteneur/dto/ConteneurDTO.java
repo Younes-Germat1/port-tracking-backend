@@ -23,4 +23,6 @@ public class ConteneurDTO {
     private List<String> classifications;
     private Long warningThreshold;
     private Long critiqueThreshold;
+    private String suggestedZone;
+    private String section;
 }

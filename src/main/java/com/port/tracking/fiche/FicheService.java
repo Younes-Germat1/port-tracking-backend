@@ -62,6 +62,15 @@ public class FicheService {
                 .details("Fiche créée par " + importateur.getNom())
                 .build());
 
+        List<User> adiiAgents = userRepository.findByRole(UserRole.ADII);
+        for (User adii : adiiAgents) {
+            notificationService.createNotification(
+                    adii,
+                    saved,
+                    "📋 Nouvelle fiche #" + saved.getId() + " soumise par " + importateur.getNom() + " — en attente de validation."
+            );
+        }
+
         return toDTO(ficheRepository.findById(saved.getId()).orElse(saved));
     }
 
@@ -86,6 +95,7 @@ public class FicheService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         fiche.setStatut(request.getStatut());
+        fiche.setDelayAlertSent(false);
         FicheSuiveuse saved = ficheRepository.save(fiche);
 
         historiqueRepository.save(Historique.builder()
@@ -96,11 +106,15 @@ public class FicheService {
                         + (request.getMotif() != null ? " — " + request.getMotif() : ""))
                 .build());
 
-        // Notify importateur
+        // ✅ Clear ADII's "new fiche" notification — they just acted on it
+        if (request.getStatut() == FicheStatut.APPROUVEE || request.getStatut() == FicheStatut.REJETEE) {
+            List<User> adiiAgents = userRepository.findByRole(UserRole.ADII);
+            notificationService.clearNotificationsForFicheAndRole(saved, adiiAgents);
+        }
+
         String message = buildNotificationMessage(request.getStatut());
         notificationService.createNotification(fiche.getImportateur(), saved, message);
 
-        // Notify all operators when fiche is APPROUVEE
         if (request.getStatut() == FicheStatut.APPROUVEE) {
             List<User> operateurs = userRepository.findByRole(UserRole.OPERATEUR);
             for (User operateur : operateurs) {
@@ -112,7 +126,12 @@ public class FicheService {
             }
         }
 
-        // Notify all operators when fiche is DEDOUANEE
+        // ✅ Clear operator's "to place" notification when fiche becomes PLACEE
+        if (request.getStatut() == FicheStatut.PLACEE) {
+            List<User> operateurs = userRepository.findByRole(UserRole.OPERATEUR);
+            notificationService.clearNotificationsForFicheAndRole(saved, operateurs);
+        }
+
         if (request.getStatut() == FicheStatut.DEDOUANEE) {
             List<User> operateurs = userRepository.findByRole(UserRole.OPERATEUR);
             for (User operateur : operateurs) {
@@ -122,6 +141,12 @@ public class FicheService {
                         "✅ Fiche #" + saved.getId() + " dédouanée — prête pour libération."
                 );
             }
+        }
+
+        // ✅ Clear operator's "dedouanee, ready to liberate" notification when LIBEREE
+        if (request.getStatut() == FicheStatut.LIBEREE) {
+            List<User> operateurs = userRepository.findByRole(UserRole.OPERATEUR);
+            notificationService.clearNotificationsForFicheAndRole(saved, operateurs);
         }
 
         return toDTO(saved);
@@ -136,6 +161,7 @@ public class FicheService {
         fiche.setImportateurAdresse(request.getImportateurAdresse());
         fiche.setImportateurContact(request.getImportateurContact());
         fiche.setStatut(FicheStatut.EN_ATTENTE);
+        fiche.setDelayAlertSent(false);
 
         FicheSuiveuse saved = ficheRepository.save(fiche);
 
@@ -145,6 +171,16 @@ public class FicheService {
                 .action("RESOUMISSION")
                 .details("Fiche re-soumise par " + fiche.getImportateur().getNom())
                 .build());
+
+        // ✅ New fresh "to-do" notification for ADII on resubmission
+        List<User> adiiAgents = userRepository.findByRole(UserRole.ADII);
+        for (User adii : adiiAgents) {
+            notificationService.createNotification(
+                    adii,
+                    saved,
+                    "🔄 Fiche #" + saved.getId() + " re-soumise par " + fiche.getImportateur().getNom() + " après rejet — à re-valider."
+            );
+        }
 
         return toDTO(saved);
     }
