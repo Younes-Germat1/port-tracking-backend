@@ -23,8 +23,6 @@ public class ManutentionService {
                 .type(request.getType())
                 .datePrevue(request.getDatePrevue())
                 .heurePrevue(request.getHeurePrevue())
-                .responsable(request.getResponsable())
-                .notes(request.getNotes())
                 .build();
 
         return toDTO(manutentionRepository.save(manutention));
@@ -49,8 +47,6 @@ public class ManutentionService {
                 .type(m.getType())
                 .datePrevue(m.getDatePrevue())
                 .heurePrevue(m.getHeurePrevue())
-                .responsable(m.getResponsable())
-                .notes(m.getNotes())
                 .createdAt(m.getCreatedAt())
                 .build();
     }

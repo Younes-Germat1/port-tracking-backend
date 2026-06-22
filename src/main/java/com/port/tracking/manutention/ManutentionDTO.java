@@ -15,7 +15,5 @@ public class ManutentionDTO {
     private ManutentionType type;
     private LocalDate datePrevue;
     private LocalTime heurePrevue;
-    private String responsable;
-    private String notes;
     private LocalDateTime createdAt;
 }

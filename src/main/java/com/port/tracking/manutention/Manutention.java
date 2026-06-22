@@ -28,8 +28,6 @@ public class Manutention {
 
     private LocalDate datePrevue;
     private LocalTime heurePrevue;
-    private String responsable;
-    private String notes;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
